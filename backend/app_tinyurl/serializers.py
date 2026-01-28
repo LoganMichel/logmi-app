@@ -47,7 +47,7 @@ class UrlSerializer(serializers.ModelSerializer):
             full_url = request.build_absolute_uri(f'/{obj.short_code}?qrcode=true')
         else:
             full_url = f'/{obj.short_code}?qrcode=true'
-        return generate_qrcode_base64(full_url)
+        return f"data:image/png;base64,{generate_qrcode_base64(full_url)}"
     
     def get_full_short_url(self, obj):
         """Return the full short URL including domain."""

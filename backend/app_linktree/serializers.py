@@ -46,7 +46,7 @@ class LinkSerializer(serializers.ModelSerializer):
             full_url = request.build_absolute_uri(f'/links?qrcode=true')
         else:
             full_url = '/links?qrcode=true'
-        return generate_qrcode_base64(full_url)
+        return f"data:image/png;base64,{generate_qrcode_base64(full_url)}"
     
     def get_full_link_url(self, obj):
         """Return the full redirect URL for this link."""
