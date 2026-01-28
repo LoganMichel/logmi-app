@@ -29,6 +29,7 @@ interface DashboardStats {
     clicks_by_day: ClickData[];
     clicks_by_city: { city: string; country: string; count: number }[];
     clicks_by_device: { device_type: string; count: number }[];
+    top_urls: { short_code: string; long_url: string; click_count: number }[];
   };
 }
 
@@ -91,6 +92,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
           clicks_by_day: tinyurlData?.clicks_by_day || [],
           clicks_by_city: tinyurlData?.clicks_by_city || [],
           clicks_by_device: tinyurlData?.clicks_by_device || [],
+          top_urls: tinyurlData?.top_urls || [],
         }
       });
       this.isLoading.set(false);

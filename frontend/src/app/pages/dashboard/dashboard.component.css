@@ -319,3 +319,17 @@
 .stats-table th.text-right {
   text-align: right;
 }
+
+.truncate-link {
+  display: block;
+  max-width: 300px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #3b82f6;
+  text-decoration: none;
+}
+
+.truncate-link:hover {
+  text-decoration: underline;
+}
