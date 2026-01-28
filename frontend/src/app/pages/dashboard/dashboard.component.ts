@@ -27,6 +27,8 @@ interface DashboardStats {
     total_clicks: number;
     qrcode_clicks: number;
     clicks_by_day: ClickData[];
+    clicks_by_city: { city: string; country: string; count: number }[];
+    clicks_by_device: { device_type: string; count: number }[];
   };
 }
 
@@ -42,7 +44,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   private authService = inject(AuthService);
   
   linktreeUrl = environment.linktreeUrl;
-  tinyurlUrl = environment.linktreeUrl; // Same base URL for short links
+  tinyurlUrl = environment.linktreeUrl;
   
   get username(): string {
     return this.authService.currentUser?.username || '';
@@ -50,6 +52,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
   @ViewChild('linktreeChart') linktreeChartRef!: ElementRef<HTMLCanvasElement>;
   @ViewChild('tinyurlChart') tinyurlChartRef!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('deviceChart') deviceChartRef!: ElementRef<HTMLCanvasElement>;
 
   stats = signal<DashboardStats | null>(null);
   isLoading = signal(true);
@@ -57,19 +60,17 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
   private linktreeChart: Chart | null = null;
   private tinyurlChart: Chart | null = null;
+  private deviceChart: Chart | null = null;
 
   ngOnInit() {
     this.loadStats();
   }
 
-  ngAfterViewInit() {
-    // Charts will be created after data loads
-  }
+  ngAfterViewInit() {}
 
   loadStats() {
     this.isLoading.set(true);
     
-    // Load both Linktree and TinyURL stats
     Promise.all([
       this.api.get<any>('/linktree/dashboard/').toPromise(),
       this.api.get<any>('/tinyurl/dashboard/').toPromise()
@@ -88,13 +89,14 @@ export class DashboardComponent implements OnInit, AfterViewInit {
           total_clicks: tinyurlData?.total_clicks || 0,
           qrcode_clicks: tinyurlData?.qrcode_clicks || 0,
           clicks_by_day: tinyurlData?.clicks_by_day || [],
+          clicks_by_city: tinyurlData?.clicks_by_city || [],
+          clicks_by_device: tinyurlData?.clicks_by_device || [],
         }
       });
       this.isLoading.set(false);
-      
-      // Create charts after data is loaded and view is ready
       setTimeout(() => this.createCharts(), 0);
     }).catch(err => {
+      console.error(err);
       this.error.set('Erreur lors du chargement des statistiques');
       this.isLoading.set(false);
     });
@@ -104,7 +106,6 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     const data = this.stats();
     if (!data) return;
 
-    // Create Linktree chart
     if (this.linktreeChartRef?.nativeElement) {
       this.linktreeChart?.destroy();
       this.linktreeChart = this.createLineChart(
@@ -115,7 +116,6 @@ export class DashboardComponent implements OnInit, AfterViewInit {
       );
     }
 
-    // Create TinyURL chart
     if (this.tinyurlChartRef?.nativeElement) {
       this.tinyurlChart?.destroy();
       this.tinyurlChart = this.createLineChart(
@@ -125,6 +125,46 @@ export class DashboardComponent implements OnInit, AfterViewInit {
         '#059669'
       );
     }
+
+    if (this.deviceChartRef?.nativeElement) {
+      this.deviceChart?.destroy();
+      this.deviceChart = this.createDonutChart(
+        this.deviceChartRef.nativeElement,
+        data.tinyurl.clicks_by_device
+      );
+    }
+  }
+
+  private createDonutChart(canvas: HTMLCanvasElement, data: { device_type: string; count: number }[]): Chart {
+    const labels = data.map(d => d.device_type === 'desktop' ? 'Ordinateur' : d.device_type === 'mobile' ? 'Mobile' : d.device_type === 'tablet' ? 'Tablette' : 'Inconnu');
+    const values = data.map(d => d.count);
+    const colors = ['#3b82f6', '#10b981', '#f59e0b', '#6b7280'];
+
+    return new Chart(canvas, {
+      type: 'doughnut',
+      data: {
+        labels,
+        datasets: [{
+          data: values,
+          backgroundColor: colors,
+          borderWidth: 0,
+          hoverOffset: 4
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'right',
+            labels: {
+              usePointStyle: true,
+              pointStyle: 'circle'
+            }
+          }
+        }
+      }
+    });
   }
 
   private createLineChart(canvas: HTMLCanvasElement, data: ClickData[], label: string, color: string): Chart {
@@ -196,5 +236,15 @@ export class DashboardComponent implements OnInit, AfterViewInit {
         }
       }
     });
+  }
+
+  getDeviceDisplay(type: string): string {
+    const map: Record<string, string> = {
+      'desktop': 'Ordinateur',
+      'mobile': 'Mobile',
+      'tablet': 'Tablette',
+      'unknown': 'Inconnu'
+    };
+    return map[type] || 'Autre';
   }
 }

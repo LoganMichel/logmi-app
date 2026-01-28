@@ -140,6 +140,21 @@ def dashboard_stats(request):
         .annotate(count=Count('id'))
         .order_by('date')
     )
+
+    # Clicks by city (Top 10)
+    clicks_by_city = list(
+        recent_stats.exclude(city__isnull=True)
+        .values('city', 'country')
+        .annotate(count=Count('id'))
+        .order_by('-count')[:10]
+    )
+
+    # Clicks by device
+    clicks_by_device = list(
+        recent_stats.values('device_type')
+        .annotate(count=Count('id'))
+        .order_by('-count')
+    )
     
     data = {
         'total_urls': total_urls,
@@ -149,6 +164,8 @@ def dashboard_stats(request):
         'recent_clicks': UrlStatSerializer(recent_clicks, many=True).data,
         'top_urls': top_urls,
         'clicks_by_day': clicks_by_day,
+        'clicks_by_city': clicks_by_city,
+        'clicks_by_device': clicks_by_device,
     }
     
     return Response(data)

@@ -123,3 +123,5 @@ class DashboardSerializer(serializers.Serializer):
     recent_clicks = UrlStatSerializer(many=True)
     top_urls = serializers.ListField(child=serializers.DictField())
     clicks_by_day = serializers.ListField(child=serializers.DictField())
+    clicks_by_city = serializers.ListField(child=serializers.DictField())
+    clicks_by_device = serializers.ListField(child=serializers.DictField())
