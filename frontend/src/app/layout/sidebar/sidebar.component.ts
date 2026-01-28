@@ -1,6 +1,7 @@
-import { Component, signal, computed } from '@angular/core';
+import { Component, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
+import { LayoutService } from '../../core/services/layout.service';
 
 interface NavItem {
   label: string;
@@ -23,7 +24,20 @@ interface NavGroup {
   styleUrl: './sidebar.component.css'
 })
 export class SidebarComponent {
+  private layoutService = inject(LayoutService);
+  private router = inject(Router);
+  
+  // Use a computed signal for better reactivity if needed, or just expose the service signal
+  isMobileMenuOpen = this.layoutService.isMobileMenuOpen;
+  
   isCollapsed = signal(false);
+
+  constructor() {
+     // Close menu on route change
+     this.router.events.subscribe(() => {
+       this.layoutService.closeMobileMenu();
+     });
+  }
 
   navGroups: NavGroup[] = [
     {
@@ -55,5 +69,9 @@ export class SidebarComponent {
 
   toggleSidebar() {
     this.isCollapsed.update(v => !v);
+  }
+
+  closeMobileMenu() {
+    this.layoutService.closeMobileMenu();
   }
 }

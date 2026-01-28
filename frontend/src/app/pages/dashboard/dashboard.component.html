@@ -138,24 +138,9 @@
             Répartition par Appareil
           </h3>
         </div>
-        <div class="table-container">
+        <div class="chart-container">
           @if (data.tinyurl.clicks_by_device.length > 0) {
-            <table class="stats-table">
-              <thead>
-                <tr>
-                  <th>Type d'appareil</th>
-                  <th class="text-right">Clics</th>
-                </tr>
-              </thead>
-              <tbody>
-                @for (device of data.tinyurl.clicks_by_device; track device.device_type) {
-                  <tr>
-                    <td>{{ getDeviceDisplay(device.device_type) }}</td>
-                    <td class="text-right">{{ device.count }}</td>
-                  </tr>
-                }
-              </tbody>
-            </table>
+            <canvas #deviceChart></canvas>
           } @else {
             <div class="no-data">
               <span class="material-icon">devices_other</span>

@@ -1,4 +1,7 @@
-<aside class="sidebar" [class.collapsed]="isCollapsed()">
+@if (isMobileMenuOpen()) {
+  <div class="sidebar-overlay" (click)="closeMobileMenu()"></div>
+}
+<aside class="sidebar" [class.collapsed]="isCollapsed()" [class.open]="isMobileMenuOpen()">
   <div class="sidebar-header">
     <div class="logo">
       @if (!isCollapsed()) {

@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
+import { LayoutService } from '../../core/services/layout.service';
 
 @Component({
   selector: 'app-header',
@@ -12,9 +13,14 @@ import { AuthService } from '../../core/services/auth.service';
 })
 export class HeaderComponent {
   private authService = inject(AuthService);
+  private layoutService = inject(LayoutService);
 
   currentUser$ = this.authService.currentUser$;
   currentProfile$ = this.authService.currentProfile$;
+
+  toggleMobileMenu() {
+    this.layoutService.toggleMobileMenu();
+  }
 
   logout() {
     this.authService.logout().subscribe();
