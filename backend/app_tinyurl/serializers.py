@@ -78,6 +78,7 @@ class UrlSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         """Update URL with auto-generated short code if cleared."""
+        # print(f"DEBUG UPDATE: {validated_data}") # Uncomment for debugging
         validated_data = self._ensure_short_code(validated_data)
         return super().update(instance, validated_data)
     

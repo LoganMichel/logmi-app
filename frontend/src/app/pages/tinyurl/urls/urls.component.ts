@@ -108,7 +108,17 @@ export class TinyurlUrlsComponent implements OnInit {
       },
       error: (err) => {
         this.isSaving.set(false);
-        this.message.set({ type: 'error', text: err.message || 'Erreur' });
+        let errorMsg = 'Erreur lors de la sauvegarde';
+        if (err.error) {
+           if (typeof err.error === 'string') {
+             errorMsg = err.error;
+           } else if (err.error.short_code) {
+             errorMsg = `Code court: ${err.error.short_code.join(', ')}`;
+           } else if (err.error.detail) {
+             errorMsg = err.error.detail;
+           }
+        }
+        this.message.set({ type: 'error', text: errorMsg });
       }
     });
   }
