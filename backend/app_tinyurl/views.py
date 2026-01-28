@@ -3,7 +3,7 @@ Views for app_tinyurl
 """
 from datetime import timedelta
 
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.db.models.functions import TruncDate
 from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404
@@ -127,8 +127,10 @@ def dashboard_stats(request):
     
     # Top URLs
     top_urls = list(
-        Url.objects.annotate(click_count=Count('stats'))
-        .filter(stats__created_at__gte=start_date)
+        Url.objects.annotate(
+            click_count=Count('stats', filter=Q(stats__created_at__gte=start_date))
+        )
+        .filter(click_count__gt=0)
         .order_by('-click_count')[:10]
         .values('id', 'short_code', 'long_url', 'click_count')
     )
