@@ -56,8 +56,8 @@ class UrlSerializer(serializers.ModelSerializer):
             return request.build_absolute_uri(f'/{obj.short_code}')
         return f'/{obj.short_code}'
     
-    def create(self, validated_data):
-        """Create URL with auto-generated short code if not provided."""
+    def _ensure_short_code(self, validated_data):
+        """Generate short code if not provided."""
         if not validated_data.get('short_code'):
             # Generate unique short code
             for _ in range(10):  # Max attempts
@@ -69,7 +69,17 @@ class UrlSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError(
                     "Could not generate unique short code. Please try again."
                 )
+        return validated_data
+
+    def create(self, validated_data):
+        """Create URL with auto-generated short code if not provided."""
+        validated_data = self._ensure_short_code(validated_data)
         return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        """Update URL with auto-generated short code if cleared."""
+        validated_data = self._ensure_short_code(validated_data)
+        return super().update(instance, validated_data)
     
     def validate_short_code(self, value):
         """Validate short code is not a reserved path."""

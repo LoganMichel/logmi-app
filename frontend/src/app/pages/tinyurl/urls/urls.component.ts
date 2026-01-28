@@ -8,7 +8,6 @@ interface Url {
   id: string;
   long_url: string;
   short_code: string;
-  custom_alias?: string;
   is_active: boolean;
   total_clicks: number;
   qrcode_clicks: number;
@@ -62,7 +61,7 @@ export class TinyurlUrlsComponent implements OnInit {
     if (url) {
       this.editingUrl.set(url);
       this.longUrl.set(url.long_url);
-      this.customAlias.set(url.custom_alias || '');
+      this.customAlias.set(url.short_code || '');
       this.isActive.set(url.is_active);
     } else {
       this.editingUrl.set(null);
@@ -92,11 +91,8 @@ export class TinyurlUrlsComponent implements OnInit {
     const data: any = {
       long_url: this.longUrl(),
       is_active: this.isActive(),
+      short_code: this.customAlias() || '' 
     };
-    
-    if (this.customAlias()) {
-      data.custom_alias = this.customAlias();
-    }
 
     const request = this.editingUrl()
       ? this.api.put<Url>(`/tinyurl/urls/${this.editingUrl()!.id}/`, data)
