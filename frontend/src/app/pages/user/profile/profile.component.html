@@ -1,0 +1,175 @@
+<div class="profile-page">
+  <div class="page-header">
+    <h1>Mon profil</h1>
+    <p>Gérez vos informations personnelles</p>
+  </div>
+
+  @if (message(); as msg) {
+    <div
+      class="message"
+      [class.success]="msg.type === 'success'"
+      [class.error]="msg.type === 'error'"
+    >
+      <span class="material-icon">{{ msg.type === 'success' ? 'check_circle' : 'error' }}</span>
+      {{ msg.text }}
+    </div>
+  }
+
+  @if (profile(); as p) {
+    <div class="profile-card">
+      <div class="profile-header">
+        <div class="profile-header-left">
+          <div class="profile-avatar">
+            @if (previewUrl()) {
+              <img
+                [src]="
+                  previewUrl()!.startsWith('data:') ? previewUrl() : linktreeUrl + previewUrl()
+                "
+                alt="Profile picture"
+                class="avatar-img"
+              />
+            } @else if (profile()?.profile_picture) {
+              <img
+                [src]="linktreeUrl + profile()?.profile_picture"
+                alt="Profile picture"
+                class="avatar-img"
+              />
+            } @else {
+              <div class="avatar-placeholder">
+                <span class="material-icon">person</span>
+              </div>
+            }
+
+            @if (isEditing()) {
+              <div class="avatar-upload">
+                <label for="avatar-input" class="upload-btn">
+                  <span class="material-icon">photo_camera</span>
+                </label>
+                <input
+                  type="file"
+                  id="avatar-input"
+                  (change)="onFileSelected($event)"
+                  accept="image/*"
+                  hidden
+                />
+              </div>
+            }
+          </div>
+          <h2>{{ profile()?.first_name }} {{ profile()?.last_name }}</h2>
+        </div>
+        @if (!isEditing()) {
+          <button class="edit-btn" (click)="startEditing()">
+            <span class="material-icon">edit</span>
+            Modifier
+          </button>
+        }
+      </div>
+
+      <div class="profile-content">
+        @if (isEditing()) {
+          <form (ngSubmit)="saveProfile()" class="profile-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="firstName">Prénom</label>
+                <input
+                  type="text"
+                  id="firstName"
+                  [ngModel]="firstName()"
+                  (ngModelChange)="firstName.set($event)"
+                  name="firstName"
+                  placeholder="Votre prénom"
+                />
+              </div>
+              <div class="form-group">
+                <label for="lastName">Nom</label>
+                <input
+                  type="text"
+                  id="lastName"
+                  [ngModel]="lastName()"
+                  (ngModelChange)="lastName.set($event)"
+                  name="lastName"
+                  placeholder="Votre nom"
+                />
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="email">Email</label>
+                <input
+                  type="email"
+                  id="email"
+                  [ngModel]="email()"
+                  (ngModelChange)="email.set($event)"
+                  name="email"
+                  placeholder="votre@email.com"
+                />
+              </div>
+              <div class="form-group">
+                <label for="phone">Téléphone</label>
+                <input
+                  type="tel"
+                  id="phone"
+                  [ngModel]="phone()"
+                  (ngModelChange)="phone.set($event)"
+                  name="phone"
+                  placeholder="+33 6 12 34 56 78"
+                />
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button type="button" class="btn-secondary" (click)="cancelEditing()">Annuler</button>
+              <button type="submit" class="btn-primary" [disabled]="isSaving()">
+                @if (isSaving()) {
+                  <span class="spinner"></span>
+                }
+                Enregistrer
+              </button>
+            </div>
+          </form>
+        } @else {
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="info-label">Prénom</span>
+              <span class="info-value">{{ p.first_name || '-' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Nom</span>
+              <span class="info-value">{{ p.last_name || '-' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Email</span>
+              <span class="info-value">{{ p.email || '-' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Téléphone</span>
+              <span class="info-value">{{ p.phone || '-' }}</span>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+    @if (p.companies && p.companies.length > 0) {
+      <div class="companies-section">
+        <h3>Mes sociétés</h3>
+        <div class="companies-list">
+          @for (company of p.companies; track company.id) {
+            <div class="company-card">
+              <div class="company-name">{{ company.name }}</div>
+              <div class="company-details">
+                @if (company.siret) {
+                  <span>SIRET: {{ company.siret }}</span>
+                }
+                @if (company.tva) {
+                  <span>TVA: {{ company.tva }}</span>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  }
+</div>

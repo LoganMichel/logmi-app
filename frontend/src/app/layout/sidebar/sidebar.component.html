@@ -1,0 +1,34 @@
+<aside class="sidebar" [class.collapsed]="isCollapsed()">
+  <div class="sidebar-header">
+    <div class="logo">
+      @if (!isCollapsed()) {
+        <span class="logo-text">L'atelier de Logan</span>
+      }
+    </div>
+    <button class="toggle-btn" (click)="toggleSidebar()">
+      <span class="material-icon">{{ isCollapsed() ? 'chevron_right' : 'chevron_left' }}</span>
+    </button>
+  </div>
+
+  <nav class="sidebar-nav">
+    @for (group of navGroups; track group.title) {
+      <div class="nav-group">
+        @if (!isCollapsed()) {
+          <span class="group-title">{{ group.title }}</span>
+        }
+        <ul class="nav-list">
+          @for (item of group.items; track item.route) {
+            <li class="nav-item">
+              <a [routerLink]="item.route" routerLinkActive="active" class="nav-link">
+                <span class="material-icon">{{ item.icon }}</span>
+                @if (!isCollapsed()) {
+                  <span class="nav-label">{{ item.label }}</span>
+                }
+              </a>
+            </li>
+          }
+        </ul>
+      </div>
+    }
+  </nav>
+</aside>

@@ -1,0 +1,39 @@
+<header class="header">
+  <div class="header-left">
+    <div class="greeting-card">
+      <h2>
+        {{ getGreeting() }},
+        @if (currentUser$ | async; as user) {
+          {{ user.first_name || user.username }}
+        }
+      </h2>
+      <p>Bienvenue dans votre espace personnel</p>
+    </div>
+  </div>
+
+  <div class="header-right">
+    <div class="header-actions">
+      <button class="icon-btn" title="Notifications">
+        <span class="material-icon">notifications</span>
+      </button>
+      <button class="icon-btn" title="Paramètres">
+        <span class="material-icon">settings</span>
+      </button>
+    </div>
+
+    <div class="user-menu">
+      @if (currentProfile$ | async; as profile) {
+        <div class="user-avatar">
+          {{ profile.first_name[0] || 'U' | uppercase }}{{ profile.last_name[0] || '' | uppercase }}
+        </div>
+        <div class="user-info">
+          <span class="user-name">{{ profile.first_name }} {{ profile.last_name }}</span>
+          <span class="user-role">@{{ (currentUser$ | async)?.username }}</span>
+        </div>
+      }
+      <button class="logout-btn" (click)="logout()" title="Se déconnecter">
+        <span class="material-icon">logout</span>
+      </button>
+    </div>
+  </div>
+</header>

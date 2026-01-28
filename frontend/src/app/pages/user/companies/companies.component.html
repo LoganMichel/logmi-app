@@ -1,0 +1,139 @@
+<div class="companies-page">
+  <div class="page-header">
+    <div>
+      <h1>Mes sociétés</h1>
+      <p>Gérez vos sociétés et entreprises</p>
+    </div>
+    <button class="btn-primary" (click)="openModal()">
+      <span class="material-icon">add</span>
+      Ajouter
+    </button>
+  </div>
+
+  @if (message(); as msg) {
+    <div
+      class="message"
+      [class.success]="msg.type === 'success'"
+      [class.error]="msg.type === 'error'"
+    >
+      <span class="material-icon">{{ msg.type === 'success' ? 'check_circle' : 'error' }}</span>
+      {{ msg.text }}
+    </div>
+  }
+
+  @if (isLoading()) {
+    <div class="loading">
+      <div class="spinner"></div>
+      Chargement...
+    </div>
+  } @else if (companies().length === 0) {
+    <div class="empty-state">
+      <span class="empty-icon material-icon">business</span>
+      <h3>Aucune société</h3>
+      <p>Ajoutez votre première société pour commencer</p>
+      <button class="btn-primary" (click)="openModal()">Ajouter une société</button>
+    </div>
+  } @else {
+    <div class="companies-grid">
+      @for (company of companies(); track company.id) {
+        <div class="company-card">
+          <div class="company-header">
+            <span class="company-icon material-icon">business</span>
+            <div class="company-actions">
+              <button class="icon-btn" (click)="openModal(company)" title="Modifier">
+                <span class="material-icon">edit</span>
+              </button>
+              <button class="icon-btn danger" (click)="deleteCompany(company)" title="Supprimer">
+                <span class="material-icon">delete</span>
+              </button>
+            </div>
+          </div>
+          <h3>{{ company.name }}</h3>
+          @if (company.address) {
+            <p class="company-address">{{ company.address }}</p>
+          }
+          <div class="company-meta">
+            @if (company.siret) {
+              <span><strong>SIRET:</strong> {{ company.siret }}</span>
+            }
+            @if (company.tva) {
+              <span><strong>TVA:</strong> {{ company.tva }}</span>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+@if (showModal()) {
+  <div class="modal-overlay" (click)="closeModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>{{ editingCompany() ? 'Modifier la société' : 'Nouvelle société' }}</h2>
+        <button class="close-btn" (click)="closeModal()">
+          <span class="material-icon">close</span>
+        </button>
+      </div>
+      <form (ngSubmit)="saveCompany()" class="modal-form">
+        <div class="form-group">
+          <label for="name">Nom de la société *</label>
+          <input
+            type="text"
+            id="name"
+            [ngModel]="name()"
+            (ngModelChange)="name.set($event)"
+            name="name"
+            placeholder="Ma Société SAS"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label for="address">Adresse</label>
+          <textarea
+            id="address"
+            [ngModel]="address()"
+            (ngModelChange)="address.set($event)"
+            name="address"
+            placeholder="123 Rue Exemple, 75001 Paris"
+            rows="2"
+          ></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="siret">SIRET</label>
+            <input
+              type="text"
+              id="siret"
+              [ngModel]="siret()"
+              (ngModelChange)="siret.set($event)"
+              name="siret"
+              placeholder="12345678901234"
+              maxlength="14"
+            />
+          </div>
+          <div class="form-group">
+            <label for="tva">N° TVA</label>
+            <input
+              type="text"
+              id="tva"
+              [ngModel]="tva()"
+              (ngModelChange)="tva.set($event)"
+              name="tva"
+              placeholder="FR12345678901"
+            />
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" (click)="closeModal()">Annuler</button>
+          <button type="submit" class="btn-primary" [disabled]="isSaving()">
+            @if (isSaving()) {
+              <span class="spinner"></span>
+            }
+            {{ editingCompany() ? 'Modifier' : 'Créer' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}

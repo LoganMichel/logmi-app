@@ -1,0 +1,149 @@
+<div class="urls-page">
+  <div class="page-header">
+    <div>
+      <h1>Mes URLs raccourcies</h1>
+      <p>Gérez vos liens raccourcis avec statistiques</p>
+    </div>
+    <button class="btn-primary" (click)="openModal()">
+      <span class="material-icon">add</span>
+      Raccourcir
+    </button>
+  </div>
+
+  @if (message(); as msg) {
+    <div
+      class="message"
+      [class.success]="msg.type === 'success'"
+      [class.error]="msg.type === 'error'"
+    >
+      <span class="material-icon">{{ msg.type === 'success' ? 'check_circle' : 'error' }}</span>
+      {{ msg.text }}
+    </div>
+  }
+
+  @if (isLoading()) {
+    <div class="loading">
+      <div class="spinner"></div>
+      Chargement...
+    </div>
+  } @else if (urls().length === 0) {
+    <div class="empty-state">
+      <span class="empty-icon material-icon">link</span>
+      <h3>Aucune URL</h3>
+      <p>Raccourcissez votre première URL</p>
+      <button class="btn-primary" (click)="openModal()">Raccourcir une URL</button>
+    </div>
+  } @else {
+    <div class="urls-list">
+      @for (url of urls(); track url.id) {
+        <div class="url-card" [class.inactive]="!url.is_active">
+          <div class="url-main">
+            <div class="url-short">
+              <code>{{ getShortUrl(url) }}</code>
+              <button
+                class="copy-btn"
+                (click)="copyToClipboard(url)"
+                [class.copied]="copiedId() === url.id"
+                [title]="copiedId() === url.id ? 'Copié !' : 'Copier'"
+              >
+                <span class="material-icon">{{
+                  copiedId() === url.id ? 'check' : 'content_copy'
+                }}</span>
+              </button>
+            </div>
+            <a [href]="url.long_url" target="_blank" class="url-long">{{ url.long_url }}</a>
+            <div class="url-stats">
+              <span class="stat"
+                ><span class="material-icon stat-icon-small">bar_chart</span>
+                {{ url.total_clicks }} clics</span
+              >
+              <span class="stat"
+                ><span class="material-icon stat-icon-small">qr_code</span>
+                {{ url.qrcode_clicks }} via QR</span
+              >
+              <span class="status" [class.active]="url.is_active">
+                {{ url.is_active ? 'Actif' : 'Inactif' }}
+              </span>
+            </div>
+          </div>
+          <div class="url-actions">
+            <button class="icon-btn" (click)="downloadQrCode(url)" title="Télécharger QR Code">
+              <span class="material-icon">qr_code_2</span>
+            </button>
+            <button
+              class="icon-btn"
+              (click)="toggleActive(url)"
+              [title]="url.is_active ? 'Désactiver' : 'Activer'"
+            >
+              <span class="material-icon">{{ url.is_active ? 'toggle_on' : 'toggle_off' }}</span>
+            </button>
+            <button class="icon-btn" (click)="openModal(url)" title="Modifier">
+              <span class="material-icon">edit</span>
+            </button>
+            <button class="icon-btn danger" (click)="deleteUrl(url)" title="Supprimer">
+              <span class="material-icon">delete</span>
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+@if (showModal()) {
+  <div class="modal-overlay" (click)="closeModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>{{ editingUrl() ? "Modifier l'URL" : 'Raccourcir une URL' }}</h2>
+        <button class="close-btn" (click)="closeModal()">
+          <span class="material-icon">close</span>
+        </button>
+      </div>
+      <form (ngSubmit)="saveUrl()" class="modal-form">
+        <div class="form-group">
+          <label for="longUrl">URL à raccourcir *</label>
+          <input
+            type="url"
+            id="longUrl"
+            [ngModel]="longUrl()"
+            (ngModelChange)="longUrl.set($event)"
+            name="longUrl"
+            placeholder="https://exemple.com/une-tres-longue-url"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label for="customAlias">Alias personnalisé (optionnel)</label>
+          <input
+            type="text"
+            id="customAlias"
+            [ngModel]="customAlias()"
+            (ngModelChange)="customAlias.set($event)"
+            name="customAlias"
+            placeholder="mon-alias"
+          />
+          <span class="hint">Laissez vide pour générer automatiquement</span>
+        </div>
+        <div class="form-group checkbox-group">
+          <input
+            type="checkbox"
+            id="isActive"
+            [ngModel]="isActive()"
+            (ngModelChange)="isActive.set($event)"
+            name="isActive"
+          />
+          <label for="isActive">URL active</label>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" (click)="closeModal()">Annuler</button>
+          <button type="submit" class="btn-primary" [disabled]="isSaving()">
+            @if (isSaving()) {
+              <span class="spinner"></span>
+            }
+            {{ editingUrl() ? 'Modifier' : 'Créer' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}

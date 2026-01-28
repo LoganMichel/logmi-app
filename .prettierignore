@@ -1,0 +1,2 @@
+# Ignore Django templates (Jinja2 syntax breaks with Prettier HTML formatting)
+backend/templates/**/*.html

@@ -1,0 +1,144 @@
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 2rem;
+  background: linear-gradient(135deg, #faf9ff 0%, #f5f3ff 100%);
+  border-bottom: 1px solid #e8e6f2;
+}
+
+.header-left {
+  flex: 1;
+}
+
+.greeting-card {
+  background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%);
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  display: inline-block;
+}
+
+.greeting-card h2 {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #4c1d95;
+}
+
+.greeting-card p {
+  margin: 0.25rem 0 0;
+  font-size: 0.8rem;
+  color: #6d28d9;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.header-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.icon-btn {
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: white;
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b5b95;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+}
+
+.icon-btn:hover {
+  background: #f0edf8;
+  color: #7c3aed;
+  transform: translateY(-2px);
+}
+
+.user-menu {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem;
+  padding-left: 1rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-name {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.user-role {
+  font-size: 0.75rem;
+  color: #8b7fad;
+}
+
+.logout-btn {
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: #fee2e2;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #dc2626;
+  transition: all 0.2s ease;
+}
+
+.logout-btn:hover {
+  background: #fecaca;
+  transform: translateY(-2px);
+}
+
+.material-icon {
+  font-family: 'Material Symbols Outlined', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 300;
+  line-height: 1;
+}
+
+@media (max-width: 768px) {
+  .header {
+    padding: 1rem;
+  }
+
+  .greeting-card {
+    display: none;
+  }
+
+  .user-info {
+    display: none;
+  }
+}

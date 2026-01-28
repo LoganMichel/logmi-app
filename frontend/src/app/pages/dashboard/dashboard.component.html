@@ -1,0 +1,116 @@
+<div class="dashboard">
+  <div class="page-header">
+    <h1>Tableau de bord</h1>
+    <p>Vue d'ensemble de votre activité</p>
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading">
+      <div class="spinner"></div>
+      Chargement...
+    </div>
+  } @else if (error()) {
+    <div class="error-banner">
+      <span class="material-icon">error</span>
+      {{ error() }}
+    </div>
+  } @else if (stats(); as data) {
+    <!-- Stats Summary Row -->
+    <div class="stats-row">
+      <div class="stat-mini gradient-purple">
+        <span class="material-icon">link</span>
+        <div class="stat-info">
+          <span class="stat-value">{{ data.linktree.total_links }}</span>
+          <span class="stat-label">Liens</span>
+        </div>
+      </div>
+      <div class="stat-mini gradient-blue">
+        <span class="material-icon">ads_click</span>
+        <div class="stat-info">
+          <span class="stat-value">{{ data.linktree.total_clicks }}</span>
+          <span class="stat-label">Clics Linktree</span>
+        </div>
+      </div>
+      <div class="stat-mini gradient-green">
+        <span class="material-icon">link</span>
+        <div class="stat-info">
+          <span class="stat-value">{{ data.tinyurl.total_urls }}</span>
+          <span class="stat-label">URLs</span>
+        </div>
+      </div>
+      <div class="stat-mini gradient-orange">
+        <span class="material-icon">trending_up</span>
+        <div class="stat-info">
+          <span class="stat-value">{{ data.tinyurl.total_clicks }}</span>
+          <span class="stat-label">Clics TinyURL</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="charts-section">
+      <div class="chart-card">
+        <div class="chart-header">
+          <h3>
+            <span class="chart-dot purple"></span>
+            Clics Linktree
+          </h3>
+          <span class="chart-badge">{{ data.linktree.qrcode_clicks }} via QR</span>
+        </div>
+        <div class="chart-container">
+          @if (data.linktree.clicks_by_day.length > 0) {
+            <canvas #linktreeChart></canvas>
+          } @else {
+            <div class="no-data">
+              <span class="material-icon">show_chart</span>
+              <p>Pas encore de données</p>
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-header">
+          <h3>
+            <span class="chart-dot green"></span>
+            Clics TinyURL
+          </h3>
+          <span class="chart-badge">{{ data.tinyurl.qrcode_clicks }} via QR</span>
+        </div>
+        <div class="chart-container">
+          @if (data.tinyurl.clicks_by_day.length > 0) {
+            <canvas #tinyurlChart></canvas>
+          } @else {
+            <div class="no-data">
+              <span class="material-icon">show_chart</span>
+              <p>Pas encore de données</p>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+      <h2>Accès rapide</h2>
+      <div class="actions-grid">
+        <a routerLink="/linktree/links" class="action-card">
+          <span class="action-icon material-icon">add_link</span>
+          <span class="action-label">Ajouter un lien</span>
+        </a>
+        <a routerLink="/tinyurl/urls" class="action-card">
+          <span class="action-icon material-icon">link</span>
+          <span class="action-label">Raccourcir une URL</span>
+        </a>
+        <a routerLink="/profile" class="action-card">
+          <span class="action-icon material-icon">person</span>
+          <span class="action-label">Mon profil</span>
+        </a>
+        <a [href]="linktreeUrl + '/' + username + '/links/'" target="_blank" class="action-card">
+          <span class="action-icon material-icon">public</span>
+          <span class="action-label">Voir mon Linktree</span>
+        </a>
+      </div>
+    </div>
+  }
+</div>
