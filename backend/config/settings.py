@@ -174,17 +174,24 @@ REDIRECT_URL = config('REDIRECT_URL', default='http://localhost:4200/')
 # =============================================================================
 # CORS Configuration
 # =============================================================================
+# Support comma-separated env var for origins
 CORS_ALLOWED_ORIGINS = config(
     'CORS_ALLOWED_ORIGINS',
     default='http://localhost:4200,http://127.0.0.1:4200',
     cast=lambda v: [s.strip() for s in v.split(',')]
 )
 CORS_ALLOW_CREDENTIALS = True
+
+# CSRF settings for handling cookies across domains
 CSRF_TRUSTED_ORIGINS = config(
     'CSRF_TRUSTED_ORIGINS',
     default='http://localhost:4200,http://127.0.0.1:4200',
     cast=lambda v: [s.strip() for s in v.split(',')]
 )
+CSRF_COOKIE_SECURE = not DEBUG
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SAMESITE = 'None' if not DEBUG else 'Lax'
+SESSION_COOKIE_SAMESITE = 'None' if not DEBUG else 'Lax'
 
 # =============================================================================
 # REST Framework Configuration
