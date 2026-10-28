@@ -18,6 +18,44 @@
   margin: 0;
 }
 
+.period-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.period-button {
+  padding: 0.5rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: white;
+  color: #374151;
+  font: inherit;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.period-button:hover {
+  border-color: #7c3aed;
+}
+
+.period-button.active {
+  border-color: #7c3aed;
+  background: #7c3aed;
+  color: white;
+}
+
+.period-button:focus-visible {
+  outline: 2px solid #7c3aed;
+  outline-offset: 3px;
+}
+
+.page-header .period-description {
+  margin-top: 0.75rem;
+  font-size: 0.875rem;
+}
+
 .loading {
   display: flex;
   align-items: center;

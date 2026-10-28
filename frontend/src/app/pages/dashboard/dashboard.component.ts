@@ -13,6 +13,9 @@ import { ApiService } from '../../core/services/api.service';
 import { AuthService } from '../../core/services/auth.service';
 import { environment } from '../../../environments/environment';
 import { Chart, registerables } from 'chart.js';
+import { firstValueFrom } from 'rxjs';
+
+type DashboardPeriod = 30 | 90 | 180 | 365;
 
 Chart.register(...registerables);
 
@@ -63,6 +66,15 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   @ViewChild('tinyurlChart') tinyurlChartRef!: ElementRef<HTMLCanvasElement>;
   @ViewChild('deviceChart') deviceChartRef!: ElementRef<HTMLCanvasElement>;
 
+  readonly periods: ReadonlyArray<{ days: DashboardPeriod; label: string }> = [
+    { days: 30, label: '30 jours' },
+    { days: 90, label: 'Trimestre' },
+    { days: 180, label: 'Semestre' },
+    { days: 365, label: 'Année' },
+  ];
+  readonly selectedDays = signal<DashboardPeriod>(30);
+  private statsRequestId: number = 0;
+
   stats = signal<DashboardStats | null>(null);
   isLoading = signal(true);
   error = signal<string | null>(null);
@@ -77,41 +89,53 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit() {}
 
-  loadStats() {
-    this.isLoading.set(true);
+  selectPeriod(days: DashboardPeriod): void {
+    if (days === this.selectedDays()) return;
+    this.selectedDays.set(days);
+    void this.loadStats();
+  }
 
-    Promise.all([
-      this.api.get<any>('/linktree/dashboard/').toPromise(),
-      this.api.get<any>('/tinyurl/dashboard/').toPromise(),
-    ])
-      .then(([linktreeData, tinyurlData]) => {
-        this.stats.set({
-          linktree: {
-            total_links: linktreeData?.total_links || 0,
-            active_links: linktreeData?.active_links || 0,
-            total_clicks: linktreeData?.total_clicks || 0,
-            qrcode_clicks: linktreeData?.qrcode_clicks || 0,
-            clicks_by_day: linktreeData?.clicks_by_day || [],
-          },
-          tinyurl: {
-            total_urls: tinyurlData?.total_urls || 0,
-            active_urls: tinyurlData?.active_urls || 0,
-            total_clicks: tinyurlData?.total_clicks || 0,
-            qrcode_clicks: tinyurlData?.qrcode_clicks || 0,
-            clicks_by_day: tinyurlData?.clicks_by_day || [],
-            clicks_by_city: tinyurlData?.clicks_by_city || [],
-            clicks_by_device: tinyurlData?.clicks_by_device || [],
-            top_urls: tinyurlData?.top_urls || [],
-          },
-        });
-        this.isLoading.set(false);
-        setTimeout(() => this.createCharts(), 0);
-      })
-      .catch((err) => {
-        console.error(err);
-        this.error.set('Erreur lors du chargement des statistiques');
-        this.isLoading.set(false);
+  async loadStats(): Promise<void> {
+    const requestId: number = ++this.statsRequestId;
+    const params: { days: DashboardPeriod } = { days: this.selectedDays() };
+    this.isLoading.set(true);
+    this.error.set(null);
+
+    try {
+      const [linktreeData, tinyurlData] = await Promise.all([
+        firstValueFrom(this.api.get<DashboardStats['linktree']>('/linktree/dashboard/', params)),
+        firstValueFrom(this.api.get<DashboardStats['tinyurl']>('/tinyurl/dashboard/', params)),
+      ]);
+      if (requestId !== this.statsRequestId) return;
+      this.stats.set({
+        linktree: {
+          total_links: linktreeData.total_links ?? 0,
+          active_links: linktreeData.active_links ?? 0,
+          total_clicks: linktreeData.total_clicks ?? 0,
+          qrcode_clicks: linktreeData.qrcode_clicks ?? 0,
+          clicks_by_day: linktreeData.clicks_by_day ?? [],
+        },
+        tinyurl: {
+          total_urls: tinyurlData.total_urls ?? 0,
+          active_urls: tinyurlData.active_urls ?? 0,
+          total_clicks: tinyurlData.total_clicks ?? 0,
+          qrcode_clicks: tinyurlData.qrcode_clicks ?? 0,
+          clicks_by_day: tinyurlData.clicks_by_day ?? [],
+          clicks_by_city: tinyurlData.clicks_by_city ?? [],
+          clicks_by_device: tinyurlData.clicks_by_device ?? [],
+          top_urls: tinyurlData.top_urls ?? [],
+        },
       });
+      setTimeout(() => {
+        if (requestId === this.statsRequestId) this.createCharts();
+      }, 0);
+    } catch (error: unknown) {
+      if (requestId !== this.statsRequestId) return;
+      console.error(error);
+      this.error.set('Erreur lors du chargement des statistiques');
+    } finally {
+      if (requestId === this.statsRequestId) this.isLoading.set(false);
+    }
   }
 
   createCharts() {

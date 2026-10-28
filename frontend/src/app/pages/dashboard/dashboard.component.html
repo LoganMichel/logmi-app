@@ -2,6 +2,21 @@
   <div class="page-header">
     <h1>Tableau de bord</h1>
     <p>Vue d'ensemble de votre activité</p>
+    <div class="period-selector" role="group" aria-label="Période des statistiques">
+      @for (period of periods; track period.days) {
+        <button
+          type="button"
+          class="period-button"
+          [class.active]="selectedDays() === period.days"
+          [attr.aria-pressed]="selectedDays() === period.days"
+          [attr.data-days]="period.days"
+          (click)="selectPeriod(period.days)"
+        >
+          {{ period.label }}
+        </button>
+      }
+    </div>
+    <p class="period-description">Clics et statistiques sur les {{ selectedDays() }} derniers jours.</p>
   </div>
 
   @if (isLoading()) {

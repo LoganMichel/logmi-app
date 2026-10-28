@@ -34,7 +34,8 @@ from app_tinyurl.utils import (
     get_client_ip, 
     get_device_type, 
     get_location_from_ip,
-    generate_qrcode_base64
+    generate_qrcode_base64,
+    preserve_qr_marker
 )
 
 
@@ -200,6 +201,7 @@ def linktree_page(request, username):
         'links': links,
         'user_profile': user_profile,
         'user': user,
+        'via_qrcode': request.GET.get('qrcode', '').lower() == 'true',
     }
     
     return render(request, 'linktree/public_page.html', context)
@@ -315,7 +317,7 @@ def link_redirect(request, link_id):
     )
     
     # Redirect to external URL
-    return HttpResponseRedirect(link.url)
+    return HttpResponseRedirect(preserve_qr_marker(request, link.url))
 
 
 # ============================================================================

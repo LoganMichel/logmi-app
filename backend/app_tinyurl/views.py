@@ -22,7 +22,7 @@ from .serializers import (
     UrlStatsAggregateSerializer,
     DashboardSerializer
 )
-from .utils import get_client_ip, get_device_type, get_location_from_ip
+from .utils import get_client_ip, get_device_type, get_location_from_ip, preserve_qr_marker
 
 
 class UrlViewSet(viewsets.ModelViewSet):
@@ -214,4 +214,4 @@ def redirect_view(request, short_code):
     )
     
     # Redirect to long URL
-    return HttpResponseRedirect(url.long_url)
+    return HttpResponseRedirect(preserve_qr_marker(request, url.long_url))

@@ -1,6 +1,7 @@
 """
 Serializers for app_linktree
 """
+from django.urls import reverse
 from rest_framework import serializers
 from .models import Link, LinkStat, Company, UserProfile
 
@@ -41,11 +42,13 @@ class LinkSerializer(serializers.ModelSerializer):
     def get_qrcode_image(self, obj):
         """Generate QR code as base64 PNG for the linktree page."""
         request = self.context.get('request')
-        if request:
-            # QR code points to the linktree page with qrcode tracking
-            full_url = request.build_absolute_uri(f'/links?qrcode=true')
-        else:
-            full_url = '/links?qrcode=true'
+        page_path: str = (
+            reverse('user-linktree', kwargs={'username': obj.user.username})
+            if obj.user_id
+            else reverse('linktree-redirect', kwargs={'link_id': obj.id})
+        )
+        qr_path: str = f'{page_path}?qrcode=true'
+        full_url: str = request.build_absolute_uri(qr_path) if request else qr_path
         return f"data:image/png;base64,{generate_qrcode_base64(full_url)}"
     
     def get_full_link_url(self, obj):

@@ -5,6 +5,9 @@ import io
 import base64
 import random
 import string
+from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
+
+from django.http import HttpRequest
 
 import qrcode
 from qrcode.image.styledpil import StyledPilImage
@@ -47,6 +50,25 @@ def generate_qrcode_base64(url: str) -> str:
     buffer.seek(0)
     
     return base64.b64encode(buffer.getvalue()).decode('utf-8')
+
+
+def preserve_qr_marker(request: HttpRequest, destination: str) -> str:
+    if request.GET.get('qrcode', '').lower() != 'true':
+        return destination
+
+    target = urlsplit(destination)
+    # Ne pas transmettre le marqueur aux sites externes.
+    if target.scheme not in ('', 'http', 'https'):
+        return destination
+    if target.netloc and target.netloc.lower() != request.get_host().lower():
+        return destination
+
+    parameters: list[tuple[str, str]] = [
+        (key, value) for key, value in parse_qsl(target.query, keep_blank_values=True)
+        if key != 'qrcode'
+    ]
+    parameters.append(('qrcode', 'true'))
+    return urlunsplit(target._replace(query=urlencode(parameters)))
 
 
 def get_client_ip(request) -> str:

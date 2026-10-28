@@ -331,7 +331,7 @@
       <!-- Links -->
       <div class="links-container">
         {% for link in links %}
-        <a href="/links/go/{{ link.id }}" class="link-card" target="_blank">
+        <a href="/links/go/{{ link.id }}{% if via_qrcode %}?qrcode=true{% endif %}" class="link-card" target="_blank">
           {% if link.icon %}
             {% if 'fa-' in link.icon %}
             <i class="{{ link.icon }} link-icon"></i>
